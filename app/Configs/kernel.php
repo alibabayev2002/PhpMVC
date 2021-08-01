@@ -2,6 +2,5 @@
 
 
 $titles = [
-    'home'=> App\Middleware\Bir::class,
-    'about' => App\Middleware\Iki::class
+    'home'=> App\Middleware\homeMiddleware::class,
 ];

@@ -7,6 +7,7 @@ namespace App\Classes;
 use App\Classes\Request;
 
 use App\Middleware\Middleware;
+use Jenssegers\Blade\Blade;
 
 /**
  * Class App
@@ -14,7 +15,10 @@ use App\Middleware\Middleware;
  */
 
 class App{
-
+    public function render($file,$arr){
+        $blade = new Blade('resources/views', 'resources/cache');
+        echo $blade->make($file, $arr)->render();
+    }
     static function callMiddleware($arr){
         $request = new Request();
         require realpath('.')."/app/configs/kernel.php";

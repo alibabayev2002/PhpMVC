@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
+use App\Classes\App;
 use App\Classes\Request;
 use ReflectionMethod;
 
-use Jenssegers\Blade\Blade;
+
 
 
 
@@ -13,7 +14,7 @@ use Jenssegers\Blade\Blade;
  * Controller
  */
 
-class Controller{
+class Controller extends App{
         
     /**
      * render
@@ -23,10 +24,7 @@ class Controller{
      * @return void
      */
 
-    public function render($file,$arr){
-        $blade = new Blade('resources/views', 'resources/cache');
-        echo $blade->make($file, $arr)->render();
-    }
+   
         
     /**
      * call
@@ -49,6 +47,9 @@ class Controller{
             }
         }
         $result = [];
+        // echo "sa";
+        // print_r($args);
+        // die();
         extract($args);
         foreach($array as $key=>$el){
             if($key=='class' && $el == Request::class){

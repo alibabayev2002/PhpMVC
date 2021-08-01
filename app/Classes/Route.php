@@ -105,18 +105,11 @@ class Route{
      */
 
     public static function end(){
-        // echo " <br><pre>";
-        // print_r(self::$middleware);
-        // echo "</pre>";
-        // die();
         $args = [];
         $currentUrl = self::getUrl();
-        global $routes;
-        $routes = self::$routes;
-        $bool = false;
         foreach (self::$routes as $url => $arr) {
+            //{} istifade edilmirse
             if($currentUrl == $url){
-                $bool = true;
                 $controller = $arr[0];
                 $function = $arr[1];
                 if(isset(self::$middleware[$currentUrl])){
@@ -128,42 +121,38 @@ class Route{
                     $request = new Request();
                 }
             }
-            else if(!$bool){
+            // {} istifade edilibse
+            else{
                 preg_match_all('/{([a-zA-Z0-9]+)}/',$url,$result);
                     if(!empty($result[1])){
-                        preg_match_all('/([a-zA-Z0-9-\/]+)/',$url,$newUrl);
-                        $newUrl =  $newUrl[1][0];
-                        if(empty(strpos($currentUrl,$newUrl))){
-                            $subsUrl = substr($currentUrl,strpos($currentUrl,$newUrl)+strlen($newUrl),strlen(($currentUrl)));
-                            $elements = explode("/",$subsUrl);
-                            $i = 0;
-                            $str = $url;
-                            foreach($arr[2] as $key=>$val){
-                                if(isset($elements[$i])){
-                                    $args[$key] = $elements[$i];   
-                                    $str = str_replace("{".$key."}",$elements[$i],$str);
-                                    $i++;
-                                }
-                            }
-                            if($currentUrl == $str){
-                                $controller = $arr[0];
-                                $function = $arr[1];
-                                if(isset(self::$middleware[$url])){
-                                    $request = App::callMiddleware(self::$middleware[$url]);
-                                    if(!$request instanceof Request){
-                                        die();
-                                    }
-                                }else{
-                                    $request = new Request();
+                        $currentUrl = '/'.$currentUrl;
+                        $url = '/'.$url;
+                        $replaceUrl = preg_replace('/{([a-zA-Z0-9-\/]+)}/','$-$',$url);
+                        $firstIndex =  stripos($replaceUrl,'/$-$') + 1;
+                        $str = substr($currentUrl,$firstIndex,strlen($replaceUrl));
+                        $elements = explode("/",trim($str,'/'));
+                        $i = 0;
+                        foreach($result[1] as $item){
+                            $args[$item] = $elements[$i] ?? '';
+                            $i++;
+                        }
+                        $routeUrl = str_ireplace_array('$-$',$elements,$replaceUrl);
+                        if($routeUrl==$currentUrl){
+                            $controller = $arr[0];
+                            $function = $arr[1];
+                            $url = trim($url,'/');
+                            if(isset(self::$middleware[$url])){
+                                $request = App::callMiddleware(self::$middleware[$url]);
+                                if(!$request instanceof Request){
+                                    die();
                                 }
                             }else{
-                                echo "404 not found!";
+                                $request = new Request();
                             }
                         }
                     }
             }
         }
-        // print_r($function);
         if(isset($request) && isset($controller) && isset($function)){
             Controller::call($request,$controller,$function,$args);
         }

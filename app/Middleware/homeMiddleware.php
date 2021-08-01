@@ -7,7 +7,7 @@ use Closure;
 /**
  * 
  */
-class Iki implements MiddlewareInterface{
+class homeMiddleware implements MiddlewareInterface{
         
     /**
      * handle
@@ -17,9 +17,8 @@ class Iki implements MiddlewareInterface{
      * @return void
      */
     function handle(Closure $next,$request){
-        // print_r($request);
+        // return false;
         // echo "sa";
-
         return $next($request);
     }
 }
